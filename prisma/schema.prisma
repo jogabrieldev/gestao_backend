@@ -8,26 +8,35 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id_user        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+  clients     Client[]     // relação 1:N
+  fornecedores Fornecedor[] // relação 1:N
 }
 
 model Client {
-  id        Int      @id @default(autoincrement())
+  id_client        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
+  cpf       String   @unique
+  data_nasc DateTime
   phone     String?
   createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id_user])
 }
 
 model Fornecedor {
-  id        Int      @id @default(autoincrement())
-  name      String
+  id_forne        Int      @id @default(autoincrement())
+  name_empresa      String
   cnpj      String   @unique
   email     String?
   phone     String?
   createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id_user])
+
 }
