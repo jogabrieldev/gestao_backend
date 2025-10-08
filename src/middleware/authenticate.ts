@@ -8,8 +8,8 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
   if (!token) return res.status(401).json({ error: 'Token não fornecido' });
 
   try {
-    const decoded = jwt.verify(token, SECRET) as { userId:any };
-    req = decoded.userId;
+    const decoded = jwt.verify(token, SECRET) as { userId: number };
+    res.locals.userId = decoded.userId; // ✅ salva no res.locals
     next();
   } catch (err) {
     res.status(401).json({ error: 'Token inválido' });

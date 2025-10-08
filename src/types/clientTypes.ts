@@ -3,5 +3,5 @@ export interface CreateClient {
      email:string
      cpf:string
      data_nasc:string
-     phone:number
+     phone?:string
 }

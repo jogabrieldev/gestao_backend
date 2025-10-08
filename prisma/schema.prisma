@@ -13,8 +13,8 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
-  clients     Client[]     // relação 1:N
-  fornecedores Fornecedor[] // relação 1:N
+  clients     Client[]     
+  fornecedores Fornecedor[] 
 }
 
 model Client {

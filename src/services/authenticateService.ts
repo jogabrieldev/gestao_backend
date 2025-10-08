@@ -12,6 +12,6 @@ export const authenticateUser = async ({ email, password }: LoginDTO) => {
   const isValid = await bcrypt.compare(password, user.password);
   if (!isValid) throw new Error('Senha inválida');
 
-  const token = jwt.sign({ userId: user }, SECRET, { expiresIn: '1d' });
+  const token = jwt.sign({ userId: user.id_user }, SECRET, { expiresIn: '1d' });
   return { token, user };
 };
