@@ -33,8 +33,8 @@ export const createClient = async (data: CreateClient, userId: number) => {
         userId: userId,
       },
     });
-
-    return client;
+     if(client) return client;
+   
   } catch (error) {
     console.error(error);
     throw new Error("Erro ao criar cliente");
