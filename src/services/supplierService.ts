@@ -33,3 +33,15 @@ export const createSupplier= async(data:CreateSupplier , userId:number)=>{
       throw new Error("Erro ao criar o fornecedor")
    }
 }
+
+export const getAllSupplier= async(userId:number)=>{
+      try {
+         const supplier = await prisma.fornecedor.findMany({
+            where:{userId}
+         })
+         if(supplier) return supplier
+      } catch (error) {
+         console.error("Erro para buscar os fornecedores do usuario")
+         throw Error("Erro para buscar os fornecedores do usuario")
+      }
+}

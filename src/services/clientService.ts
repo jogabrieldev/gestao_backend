@@ -1,5 +1,6 @@
 
 
+
 import { prisma } from "../prisma/client";
 import { CreateClient } from "../types/clientTypes";
 
@@ -40,3 +41,15 @@ export const createClient = async (data: CreateClient, userId: number) => {
     throw new Error("Erro ao criar cliente");
   }
 };
+
+export const getAllClient = async(userId:number)=>{
+   try {
+      const client = await prisma.client.findMany({
+        where:{userId}
+      });
+      if(client) return client
+   } catch (error) {
+      console.error("Erro para listar clientes")
+      throw new Error("Erro ao buscar cliente")
+   }
+}
