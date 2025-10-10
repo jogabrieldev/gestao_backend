@@ -20,9 +20,9 @@ export const validationSupplier = z.object({
   .string()
   .optional()
   .refine((val) => {
-    if (!val) return true; // campo opcional
-    const cleaned = val.replace(/\D/g, ""); // remove tudo que não é número
-    return /^(\d{10}|\d{11})$/.test(cleaned); // aceita 10 ou 11 dígitos
+    if (!val) return true;
+    const cleaned = val.replace(/\D/g, ""); 
+    return /^(\d{10}|\d{11})$/.test(cleaned); 
   }, {
     message: 'Telefone inválido. Informe DDD + número (10 ou 11 dígitos).',
   }),

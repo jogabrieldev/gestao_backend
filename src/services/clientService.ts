@@ -54,24 +54,6 @@ export const getAllClient = async(userId:number)=>{
    }
 }
 
-export const getClientByCpf = async(cpf:string , userId:number)=>{
-    try {
-        const client = await prisma.client.findFirst({
-          where:{
-            cpf,
-            userId
-           }
-         })
-         if(!client){
-           throw new Error("Cliente não encontrado com o CPF passado")
-         }
-
-         return client
-    } catch (error) {
-       console.error("Erro ao buscar cliente por CPF:", error);
-       throw new Error("Erro ao buscar cliente por CPF.");
-    }
-}
 
 export const deleteClientById = async (id: number , userId:number) => {
   try {

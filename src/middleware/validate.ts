@@ -39,6 +39,7 @@ export const validate =
     }
   };
 
+  // BLOCK para campos que não podem ser alterados no fornecedor
   export const blockImmutableSupplierFields = (req: Request, res: Response, next: NextFunction) => {
   const forbiddenFields = ["name_empresa", "cnpj"];
   const found = forbiddenFields.filter((f) => f in req.body);
@@ -51,6 +52,8 @@ export const validate =
 
   next();
 };
+
+// BLOCK para campos que não podem ser alterados no cliente
 export const blockImmutableClientFields = (req: Request, res: Response, next: NextFunction) => {
   const forbiddenFields = ["name", "cpf", "data_nasc"];
   const found = forbiddenFields.filter((f) => f in req.body);

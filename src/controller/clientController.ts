@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
-import { createClient , getAllClient , getClientByCpf , deleteClientById , updateClient } from "../services/clientService";
-
+import { createClient , getAllClient , deleteClientById , updateClient } from "../services/clientService";
 
 export const registerClient = async (req: Request, res: Response) => {
   try {
        
-    const userId = Number(res.locals.userId); // garante que seja um número
+    const userId = Number(res.locals.userId); 
      
     if (!userId) {
       return res.status(401).json({ error: "Usuário não autenticado" });
@@ -34,23 +33,7 @@ export const getAllClientsController = async (_req: Request, res: Response) => {
   }
 };
 
-export const getClientByCpfController = async(req: Request , res: Response)=>{
-     const { cpf } = req.params;
-     const userId = Number(res.locals.userId);
 
-    if (!userId || !cpf) {
-      return res.status(400).json({ error: "CPF ou usuário não informado." });
-    }
-
-   
-  try {
-    const client = await getClientByCpf(cpf, userId);
-    return res.status(200).json(client);
-  } catch (error: any) {
-    return res.status(404).json({ error: error.message });
-  }
-
-};
 
 export const deleteClient = async (req: Request, res: Response) => {
 

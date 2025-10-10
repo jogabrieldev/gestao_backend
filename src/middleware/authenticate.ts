@@ -9,7 +9,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
 
   try {
     const decoded = jwt.verify(token, SECRET) as { userId: number };
-    res.locals.userId = decoded.userId; // ✅ salva no res.locals
+    res.locals.userId = decoded.userId; 
     next();
   } catch (err) {
     res.status(401).json({ error: 'Token inválido' });

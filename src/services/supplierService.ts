@@ -47,23 +47,6 @@ export const getAllSupplier= async(userId:number)=>{
       }
 };
 
-export const getSupplierByCnpj= async(cnpj:string ,  userId:number)=>{
-    try {
-       const supplier = await prisma.fornecedor.findFirst({
-          where:{
-            cnpj,
-            userId
-          }
-       })
-       if(!supplier){
-         throw Error("Fornecedor não encontrado com esse CNPJ")
-       }
-    } catch (error) {
-       console.error("Erro ao buscar fornecedor por CNPJ")
-       throw Error("Erro ao buscar fornecedor por CNPJ")
-    }
-}
-
 export const deleteSupplierById = async (id: number, userId: number) => {
   try {
     // Verifica se o fornecedor existe e pertence ao usuário

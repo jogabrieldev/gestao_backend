@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createSupplier , getAllSupplier , getSupplierByCnpj, deleteSupplierById , updateSupplier } from "../services/supplierService";
+import { createSupplier , getAllSupplier, deleteSupplierById , updateSupplier } from "../services/supplierService";
 
 export const registerSupplier = async (req: Request, res: Response) => {
   try {
@@ -31,22 +31,7 @@ export const getAllSupplierController = async (req:Request , res: Response)=>{
     }
 };
 
-export const getSupplierByCnpjController = async (req:Request , res:Response)=>{
 
-      const {cnpj} = req.params
-      const userId = Number(res.locals.userId)
-
-      if (!cnpj || !userId) {
-         return res.status(400).json({ error: "CPF ou usuário não informado." });
-      }
-
-     try {
-      const supplier = await getSupplierByCnpj(cnpj , userId)
-      return res.status(200).json(supplier)
-    } catch (error:any) {
-        return res.status(404).json({ error: error.message });
-   }
-};
 
 export const deleteSupplier = async (req: Request, res: Response) => {
   const id = Number(req.params.id);

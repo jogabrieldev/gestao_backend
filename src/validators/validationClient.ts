@@ -40,10 +40,6 @@ export const deleteClientParams = z.object({
     }),
 });
 
-export const getClientByCpf = z.object({
-  cpf: z.string().refine((val) => cpf.isValid(val), { message: "CPF inválido" }),
-});
-
 
 //Validação para atualização de cliente
 export const updateClientValidation = z.object({
