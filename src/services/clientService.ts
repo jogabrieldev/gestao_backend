@@ -53,3 +53,96 @@ export const getAllClient = async(userId:number)=>{
       throw new Error("Erro ao buscar cliente")
    }
 }
+
+export const getClientByCpf = async(cpf:string , userId:number)=>{
+    try {
+        const client = await prisma.client.findFirst({
+          where:{
+            cpf,
+            userId
+           }
+         })
+         if(!client){
+           throw new Error("Cliente não encontrado com o CPF passado")
+         }
+
+         return client
+    } catch (error) {
+       console.error("Erro ao buscar cliente por CPF:", error);
+       throw new Error("Erro ao buscar cliente por CPF.");
+    }
+}
+
+export const deleteClientById = async (id: number , userId:number) => {
+  try {
+
+      const client = await prisma.client.findUnique({
+      where: { id_client: id },
+    });
+
+      if (!client || client.userId !== userId) {
+      throw new Error("Cliente não encontrado ou não autorizado.");
+    }
+    // Deleta o cliente pelo ID
+     const deletedClient = await prisma.client.delete({
+      where: { id_client: id },
+    });
+
+    return deletedClient; // retorna o cliente deletado
+  } catch (error:any) {
+    console.error("Erro ao deletar cliente:", error);
+
+    if (error.code === "P2025") {
+      throw new Error("Cliente não encontrado para deletar.");
+    }
+
+    throw new Error("Erro ao deletar cliente.");
+  }
+};
+export const updateClient = async (id: number, data: Partial<CreateClient>, userId: number) => {
+  const existingClient = await prisma.client.findUnique({ where: { id_client: id } });
+
+  if (!existingClient || existingClient.userId !== userId) {
+    throw new Error("Cliente não encontrado ou não autorizado.");
+  }
+
+  // 🚫 Impedir alteração de nome, CPF e data_nasc
+  if (data.name && data.name !== existingClient.name) {
+    throw new Error("Não é permitido alterar o nome do cliente.");
+  }
+
+  if (data.cpf && data.cpf !== existingClient.cpf) {
+    throw new Error("Não é permitido alterar o CPF do cliente.");
+  }
+
+  if (data.data_nasc && data.data_nasc !== existingClient.data_nasc.toISOString().split("T")[0]) {
+    throw new Error("Não é permitido alterar a data de nascimento.");
+  }
+
+  // ✅ Verificar duplicidade de e-mail
+  if (data.email && data.email !== existingClient.email) {
+    const existingEmail = await prisma.client.findUnique({ where: { email: data.email } });
+    if (existingEmail) throw new Error("E-mail já cadastrado.");
+  }
+
+  // ✅ Verificar duplicidade de telefone
+  if (data.phone && data.phone !== existingClient.phone) {
+    const existingPhone = await prisma.client.findFirst({ where: { phone: data.phone } });
+    if (existingPhone) throw new Error("Telefone já cadastrado.");
+  }
+
+  try {
+    const updatedClient = await prisma.client.update({
+      where: { id_client: id },
+      data: {
+        ...(data.email && { email: data.email }),
+        ...(data.phone && { phone: data.phone }),
+      },
+    });
+
+    return updatedClient;
+  } catch (error) {
+    console.error("Erro ao atualizar cliente:", error);
+    throw new Error("Erro ao atualizar cliente.");
+  }
+};

@@ -16,10 +16,33 @@ export const validationSupplier = z.object({
     .string()
     .email({ message: 'E-mail inválido.' }),
 
+ phone: z
+  .string()
+  .optional()
+  .refine((val) => {
+    if (!val) return true; // campo opcional
+    const cleaned = val.replace(/\D/g, ""); // remove tudo que não é número
+    return /^(\d{10}|\d{11})$/.test(cleaned); // aceita 10 ou 11 dígitos
+  }, {
+    message: 'Telefone inválido. Informe DDD + número (10 ou 11 dígitos).',
+  }),
+});
+
+export const deleteSupplierParams = z.object({
+  id: z
+    .string()
+    .refine((val) => !isNaN(Number(val)), {
+      message: "ID inválido",
+    }),
+});
+export const updateSupplierValidation = z.object({
+  email: z.string().email({ message: "E-mail inválido." }).optional(),
   phone: z
     .string()
-    .regex(/^(\d{2})9\d{8}$/, {
-      message: 'Telefone deve conter DDD seguido de número com 9 e mais 8 dígitos. Ex: 62999999999',
-    })
-    .optional(),
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      const cleaned = val.replace(/\D/g, "");
+      return /^(\d{10}|\d{11})$/.test(cleaned);
+    }, { message: "Telefone inválido. Informe DDD + número (10 ou 11 dígitos)." }),
 });

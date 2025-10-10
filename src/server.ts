@@ -3,9 +3,16 @@ import useroutes from"../src/routes/userRoutes"
 import authroutes from "../src/routes/authRoutes"
 import clientRoutes from "./routes/clientRoutes";
 import supplierRoutes from "./routes/supplierRoutes";
+import cors from 'cors';
+
 const app = express()
 
 app.use(express.json())
+
+app.use(cors({
+  origin: 'http://localhost:5173', // URL do frontend
+  credentials: true
+}));
 
 app.get('/' , (req:Request , res:Response)=>{
     res.json({message:"Servidor rodando!"})
