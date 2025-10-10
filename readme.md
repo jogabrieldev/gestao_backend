@@ -42,3 +42,9 @@ __ temos metodos para (Criar , deltar , atualizar , listar) verificando o usuari
 
 
 (Cada usuário cadastrado tem seus clientes e seus fornecedores, nunca um usuario vai acessar e ver clientes e fornecedores de outro usuário)
+
+*Rodar o projeto*
+
+__ (Clone o repositório)
+__ (npm install)
+__ (npm run dev)
