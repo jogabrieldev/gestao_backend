@@ -1,5 +1,22 @@
 **Back-end**
 
+version 1.0
+
+Gestão de clientes e de fornecedores
+
+(Sistema esta sendo pensado para usuario que querem ter um controle maior sobre seus fornecedores e clientes ativos)
+
+Se baseia onde cada usuario pagante dos sistema, vai ter seu usuario proprio com total dominio dos seus clientes e fornecedores, esse controle vai ser crucial para ter um noção de ponta a ponta. Nas novas atualizações implemetaremos a parte financeira do sistema onde vai fazer todo o calculo tanto na parte do cliente quanto na parte do fornecedor. Vai ter a parte do dashbord que vai ser onde iremos mostrar toda a analise o sistema e pensado para integração com um sistema ja consolidado onde essa parte de gestão ira ficar totalmente com os proprietarios pois ira pegar toda a analise do outro sistema , pegando os clientes e toda movimentação o mesmo com os fornecedores, sistema ja possui cliente utilizando e totalmente adptado para a realidade do cliente. por ser 100% responsivo e totalmente adptavel com todas as telas inclusive de televisoes a versão mobile ainda vai acontecer pois o cliente consegue acessar direto pelo o navegador. E a questão do mobile temos os gastos com as plataformas e temos que ter uma margin de instalação, irei adptar o react-native ou vou usar uma ferramente com a tecnologia PWA como ionic ou outro que seja mais compativel com react
+
+back-end
+
+Foi desenvolvido com uma arquitetura MVC com divisões em camadas e uma boa divião de responsabilidades. temos a camada de controle para pegar as requisições e encaminhar para o processamento no SERVICE, após termos uma resposta retornamos por meis do mesmo controlador.
+Temos os VALIDATORS onde e a camada que contem as validações para adptação a regra de negocio do sistema, regras para criar, deletar, editar
+estou usando uma ferramenta de ORM , que basicamente facilita nossa comunicação com o banco de dados , que no caso e o mySQL.
+por meio das MIGRATIONS construimos o banco de dados com suas tabelas
+
+Os MIDDLEWARES fazem a parte da barreira de proteção das nossas rotas que fazem comunicação com o front-end
+
 ## SRC/Source
 
 --Modulos--

@@ -22,7 +22,6 @@ model Client {
   name      String
   email     String   @unique
   cpf       String   @unique
-  data_nasc DateTime
   phone     String?  @unique
   createdAt DateTime @default(now())
   userId    Int

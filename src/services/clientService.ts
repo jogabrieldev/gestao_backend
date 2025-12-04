@@ -6,6 +6,8 @@ import { CreateClient } from "../types/clientTypes";
 
 export const createClient = async (data: CreateClient, userId: number) => {
 
+  console.log("Dados recebidos" , data)
+
   const existingEmail = await prisma.client.findUnique({ where: { email: data.email } });
   if (existingEmail) {
     throw new Error("E-mail já cadastrado.");
@@ -29,7 +31,7 @@ export const createClient = async (data: CreateClient, userId: number) => {
         name: data.name,
         email: data.email,
         cpf: data.cpf,
-        data_nasc: new Date(data.data_nasc),
+        data_nasc: new Date(),
         phone: data.phone ?? null, 
         userId: userId,
       },
