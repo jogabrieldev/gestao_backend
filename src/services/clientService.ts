@@ -6,7 +6,6 @@ import { CreateClient } from "../types/clientTypes";
 
 export const createClient = async (data: CreateClient, userId: number) => {
 
-  console.log("Dados recebidos" , data)
 
   const existingEmail = await prisma.client.findUnique({ where: { email: data.email } });
   if (existingEmail) {
@@ -72,7 +71,7 @@ export const deleteClientById = async (id: number , userId:number) => {
       where: { id_client: id },
     });
 
-    return deletedClient; // retorna o cliente deletado
+    return deletedClient; 
   } catch (error:any) {
     console.error("Erro ao deletar cliente:", error);
 
@@ -90,7 +89,6 @@ export const updateClient = async (id: number, data: Partial<CreateClient>, user
     throw new Error("Cliente não encontrado ou não autorizado.");
   }
 
-  // 🚫 Impedir alteração de nome, CPF e data_nasc
   if (data.name && data.name !== existingClient.name) {
     throw new Error("Não é permitido alterar o nome do cliente.");
   }
@@ -103,13 +101,11 @@ export const updateClient = async (id: number, data: Partial<CreateClient>, user
     throw new Error("Não é permitido alterar a data de nascimento.");
   }
 
-  // ✅ Verificar duplicidade de e-mail
   if (data.email && data.email !== existingClient.email) {
     const existingEmail = await prisma.client.findUnique({ where: { email: data.email } });
     if (existingEmail) throw new Error("E-mail já cadastrado.");
   }
 
-  // ✅ Verificar duplicidade de telefone
   if (data.phone && data.phone !== existingClient.phone) {
     const existingPhone = await prisma.client.findFirst({ where: { phone: data.phone } });
     if (existingPhone) throw new Error("Telefone já cadastrado.");
