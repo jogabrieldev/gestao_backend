@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "nodemon src/server.ts",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && node -e \"const assert=require('node:assert/strict'); const {validationUser,validationLogin}=require('./dist/validators/validationUsers'); const {validationClient}=require('./dist/validators/validationClient'); assert.equal(validationUser.safeParse({name:'Joao Silva',email:'joao@example.com',password:'12345678'}).success,true); assert.equal(validationLogin.safeParse({email:'invalido',password:''}).success,false); assert.equal(validationClient.safeParse({name:'Maria Silva',email:'maria@example.com',cpf:'52998224725',phone:'11999999999',data_nasc:'2000-01-01'}).success,true); console.log('Schemas validados com sucesso.');\"",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
   },
   "keywords": [],
   "author": "",
@@ -28,6 +31,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.7.0",
     "nodemon": "^3.1.10",
+    "prisma": "^6.16.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }

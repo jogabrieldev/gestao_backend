@@ -1,9 +1,17 @@
-import { z } from 'zod';
+import { z } from "zod";
+
+const email = z.string().trim().toLowerCase().email("Informe um e-mail válido.").max(120);
 
 export const validationUser = z.object({
-  name: z.string().min(3, { message: 'O nome deve ter pelo menos 3 caracteres.' }),
-  email: z.string().email({ message: 'E-mail inválido.' }),
-  password: z.string().min(6, { message: 'A senha deve ter pelo menos 6 caracteres.' }),
-});
+  name: z.string().trim().min(3, "O nome deve ter pelo menos 3 caracteres.").max(100),
+  email,
+  password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres.").max(72),
+}).strict();
+
+export const validationLogin = z.object({
+  email,
+  password: z.string().min(1, "Informe a senha.").max(72),
+}).strict();
 
 export type UserSchemaType = z.infer<typeof validationUser>;
+export type LoginSchemaType = z.infer<typeof validationLogin>;

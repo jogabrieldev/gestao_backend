@@ -1,14 +1,11 @@
-import { prisma } from '../prisma/client';
-import { CreateUser } from '../types/userTypes';
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
+import { prisma } from "../prisma/client";
+import type { CreateUser } from "../types/userTypes";
 
 export const createUser = async (data: CreateUser) => {
-  const hashedPassword = await bcrypt.hash(data.password, 10);
+  const password = await bcrypt.hash(data.password, 10);
   return prisma.user.create({
-    data: {
-      name: data.name,
-      email: data.email,
-      password: hashedPassword,
-    },
+    data: { name: data.name, email: data.email, password },
+    select: { id_user: true, name: true, email: true, createdAt: true },
   });
 };

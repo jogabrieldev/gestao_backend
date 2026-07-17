@@ -1,68 +1,53 @@
-import { Request, Response, NextFunction } from "express";
-import { ZodObject, ZodRawShape, ZodError } from "zod";
+import { Prisma } from "@prisma/client";
+import type { NextFunction, Request, Response } from "express";
+import { ZodError, type ZodType } from "zod";
 
 type RequestTarget = "body" | "params" | "query";
 
-export const validate =
-  (schema: ZodObject<ZodRawShape>, target: RequestTarget = "body") =>
-  (req: Request, _res: Response, next: NextFunction) => {
-    try {
-      if (target === "body") {
-        req.body = schema.parse(req.body); // ✅ body funciona normalmente
-      }
+export class AppError extends Error {
+  constructor(message: string, public readonly statusCode = 400) {
+    super(message);
+    this.name = "AppError";
+  }
+}
 
-      if (target === "params") {
-        // Type assertion para informar que é ParamsDictionary
-        const parsed = schema.parse(req.params) as Record<string, string>;
-        req.params = parsed;
-      }
+export const validate = (schema: ZodType, target: RequestTarget = "body") =>
+  (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req[target]);
 
-      if (target === "query") {
-        // Type assertion para informar que é ParsedQs
-        const parsed = schema.parse(req.query) as Record<string, any>;
-        req.query = parsed;
-      }
-
-      next();
-    } catch (error) {
-      const zodError = error as ZodError<any>;
-      if (zodError.issues) {
-        const formattedErrors = zodError.issues.map((e) => ({
-          field: e.path.join("."),
-          message: e.message,
-        }));
-
-        return _res.status(400).json({ error: "Erro de validação", details: formattedErrors });
-      }
-
-      return _res.status(500).json({ error: "Erro interno de validação", message: (error as Error).message });
+    if (!result.success) {
+      return res.status(422).json({
+        error: "Dados inválidos.",
+        details: result.error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
     }
+
+    if (target === "body") req.body = result.data;
+    if (target === "params") req.params = result.data as Request["params"];
+    if (target === "query") res.locals.validatedQuery = result.data;
+    next();
   };
 
-  // BLOCK para campos que não podem ser alterados no fornecedor
-  export const blockImmutableSupplierFields = (req: Request, res: Response, next: NextFunction) => {
-  const forbiddenFields = ["name_empresa", "cnpj"];
-  const found = forbiddenFields.filter((f) => f in req.body);
+export const notFound = (_req: Request, res: Response) =>
+  res.status(404).json({ error: "Rota não encontrada." });
 
-  if (found.length > 0) {
-    return res.status(400).json({
-      message: `Os campos ${found.join(", ")} não podem ser alterados.`,
-    });
+export const errorHandler = (error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  if (error instanceof AppError) {
+    return res.status(error.statusCode).json({ error: error.message });
   }
 
-  next();
-};
-
-// BLOCK para campos que não podem ser alterados no cliente
-export const blockImmutableClientFields = (req: Request, res: Response, next: NextFunction) => {
-  const forbiddenFields = ["name", "cpf", "data_nasc"];
-  const found = forbiddenFields.filter((f) => f in req.body);
-
-  if (found.length > 0) {
-    return res.status(400).json({
-      message: `Os campos ${found.join(", ")} não podem ser alterados.`,
-    });
+  if (error instanceof ZodError) {
+    return res.status(422).json({ error: "Dados inválidos.", details: error.issues });
   }
 
-  next();
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === "P2002") return res.status(409).json({ error: "Já existe um registro com esses dados." });
+    if (error.code === "P2025") return res.status(404).json({ error: "Registro não encontrado." });
+  }
+
+  console.error("Erro não tratado:", error);
+  return res.status(500).json({ error: "Erro interno do servidor." });
 };

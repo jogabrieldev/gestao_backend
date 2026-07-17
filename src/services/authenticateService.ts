@@ -1,17 +1,20 @@
-import { prisma } from '../prisma/client';
-import { LoginDTO } from '../types/authenticateTypes';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { AppError } from "../middleware/validate";
+import { prisma } from "../prisma/client";
+import type { LoginDTO } from "../types/authenticateTypes";
 
-const SECRET = process.env.JWT_SECRET || 'minha_chave_secreta';
-
-export const authenticateUser = async ({ email, password }: LoginDTO) => {
+export const authenticateUser = async ({ email, password }: LoginDTO, secret: string) => {
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) throw new Error('Usuário não encontrado');
-  
-  const isValid = await bcrypt.compare(password, user.password);
-  if (!isValid) throw new Error('Senha inválida');
+  const validPassword = user ? await bcrypt.compare(password, user.password) : false;
 
-  const token = jwt.sign({ userId: user.id_user }, SECRET, { expiresIn: '1d' });
-  return { token, user };
+  if (!user || !validPassword) throw new AppError("E-mail ou senha inválidos.", 401);
+
+  const token = jwt.sign({ userId: user.id_user }, secret, {
+    expiresIn: "1d",
+    issuer: "gestao-api",
+    audience: "gestao-frontend",
+  });
+
+  return { token, user: { id: user.id_user, name: user.name, email: user.email } };
 };

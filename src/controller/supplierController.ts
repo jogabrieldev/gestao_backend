@@ -1,71 +1,43 @@
-import { Request, Response } from "express";
-import { createSupplier , getAllSupplier, deleteSupplierById , updateSupplier } from "../services/supplierService";
+import type { NextFunction, Request, Response } from "express";
+import type { ListOptions } from "../types/clientTypes";
+import { createSupplier, deleteSupplierById, getAllSupplier, updateSupplier } from "../services/supplierService";
 
-export const registerSupplier = async (req: Request, res: Response) => {
+export const registerSupplier = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = Number(res.locals.userId); 
-     
-    if (!userId) {
-      return res.status(401).json({ error: "Usuário não autenticado" });
-    }
-
-    const client = await createSupplier(req.body , userId);
-    return res.status(201).json(client);
-  } catch (error: any) {
-    return res.status(400).json({ error: error.message });
+    const supplier = await createSupplier(req.body, res.locals.userId as number);
+    return res.status(201).json(supplier);
+  } catch (error) {
+    next(error);
   }
 };
 
-export const getAllSupplierController = async (req:Request , res: Response)=>{
-    const userId = Number(res.locals.userId)
-
-    if(!userId){
-      return res.status(401).json({erro: "Usuário não autenticado"})
-    }
-    try {
-       const supplier = await getAllSupplier(userId)
-       if(!supplier) return res.status(400).json({error:"Erro ao buscar fornecedores"})
-       return res.status(200).json(supplier)
-    } catch (error:any) {
-         return res.status(400).json({ error: error.message});
-    }
-};
-
-
-
-export const deleteSupplier = async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  const userId = res.locals.userId;
-
-  if (!userId) {
-    return res.status(401).json({ error: "Usuário não autorizado" });
-  }
-
+export const getAllSupplierController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const deletedSupplier = await deleteSupplierById(id, userId);
-    return res.status(200).json({
-      message: "Fornecedor deletado com sucesso",
-      supplier: deletedSupplier,
-    });
-  } catch (error: any) {
-    return res.status(400).json({ message: error.message });
+    const { items, total } = await getAllSupplier(
+      res.locals.userId as number,
+      res.locals.validatedQuery as ListOptions,
+    );
+    res.setHeader("X-Total-Count", total);
+    return res.status(200).json(items);
+  } catch (error) {
+    next(error);
   }
 };
 
-export const updateSupplierController = async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  const userId = Number(res.locals.userId);
-
-  if (!userId) return res.status(401).json({ error: "Usuário não autenticado" });
-
+export const deleteSupplier = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const updatedSupplier = await updateSupplier(id, req.body, userId);
-    return res.status(200).json({
-      message: "Fornecedor atualizado com sucesso!",
-      supplier: updatedSupplier,
-    });
-  } catch (error: any) {
-    return res.status(400).json({ message: error.message });
+    await deleteSupplierById(Number(req.params.id), res.locals.userId as number);
+    return res.status(204).send();
+  } catch (error) {
+    next(error);
   }
 };
 
+export const updateSupplierController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const supplier = await updateSupplier(Number(req.params.id), req.body, res.locals.userId as number);
+    return res.status(200).json({ message: "Fornecedor atualizado com sucesso.", supplier });
+  } catch (error) {
+    next(error);
+  }
+};

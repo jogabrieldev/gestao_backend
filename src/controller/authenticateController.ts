@@ -1,17 +1,11 @@
-import { Request, Response } from 'express';
-import { authenticateUser } from '../services/authenticateService';
+import type { NextFunction, Request, Response } from "express";
+import { authenticateUser } from "../services/authenticateService";
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { token, user } = await authenticateUser(req.body);
-     
-    const safeUser = {
-       id: user.id_user,
-       name: user.name,
-       email: user.email,
-    }
-    res.json({ token, user:safeUser});
-  } catch (error: any) {
-    res.status(401).json({ error: error.message });
+    const result = await authenticateUser(req.body, res.locals.jwtSecret as string);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
   }
 };

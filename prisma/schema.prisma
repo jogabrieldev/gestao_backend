@@ -8,34 +8,44 @@ generator client {
 }
 
 model User {
-  id_user        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  clients     Client[]     
-  fornecedores Fornecedor[] 
+  id_user      Int          @id @default(autoincrement())
+  name         String
+  email        String       @unique
+  password     String
+  createdAt    DateTime     @default(now())
+  clients      Client[]
+  fornecedores Fornecedor[]
 }
 
 model Client {
-  id_client        Int      @id @default(autoincrement())
+  id_client Int      @id @default(autoincrement())
   name      String
-  email     String   @unique
-  cpf       String   @unique
-  phone     String?  @unique
+  email     String
+  cpf       String
+  data_nasc DateTime
+  phone     String?
   createdAt DateTime @default(now())
   userId    Int
-  user      User     @relation(fields: [userId], references: [id_user])
+  user      User     @relation(fields: [userId], references: [id_user], onDelete: Cascade)
+
+  @@unique([userId, email])
+  @@unique([userId, cpf])
+  @@unique([userId, phone])
+  @@index([userId, createdAt])
 }
 
 model Fornecedor {
-  id_forne        Int      @id @default(autoincrement())
-  name_empresa      String
-  cnpj      String   @unique
-  email     String?  @unique
-  phone     String?  @unique
-  createdAt DateTime @default(now())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id_user])
+  id_forne    Int      @id @default(autoincrement())
+  name_empresa String
+  cnpj        String
+  email       String?
+  phone       String?
+  createdAt   DateTime @default(now())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id_user], onDelete: Cascade)
 
+  @@unique([userId, cnpj])
+  @@unique([userId, email])
+  @@unique([userId, phone])
+  @@index([userId, createdAt])
 }

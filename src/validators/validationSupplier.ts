@@ -1,48 +1,28 @@
-import { z } from 'zod';
-import { cnpj } from 'cpf-cnpj-validator';
+import { cnpj } from "cpf-cnpj-validator";
+import { z } from "zod";
+import { idParams, listQueryValidation } from "./validationClient";
+
+const digits = (value: string) => value.replace(/\D/g, "");
+const optionalPhone = z.preprocess(
+  (value) => value === "" || value === undefined ? null : value,
+  z.union([
+    z.null(),
+    z.string().transform(digits).refine((value) => /^\d{10,11}$/.test(value), "Informe DDD e telefone com 10 ou 11 dígitos."),
+  ]),
+);
+const email = z.string().trim().toLowerCase().email("Informe um e-mail válido.").max(120);
 
 export const validationSupplier = z.object({
-  name_empresa: z
-    .string()
-    .min(5, { message: 'O nome da empresa deve ter pelo menos 3 caracteres.' }),
+  name_empresa: z.string().trim().min(3, "O nome da empresa deve ter pelo menos 3 caracteres.").max(120),
+  cnpj: z.string().transform(digits).refine(cnpj.isValid, "Informe um CNPJ válido."),
+  email,
+  phone: optionalPhone.optional(),
+}).strict();
 
-  cnpj: z
-    .string()
-    .refine((val) => cnpj.isValid(val), {
-      message: 'CNPJ inválido.',
-    }),
-
-  email: z
-    .string()
-    .email({ message: 'E-mail inválido.' }),
-
- phone: z
-  .string()
-  .optional()
-  .refine((val) => {
-    if (!val) return true;
-    const cleaned = val.replace(/\D/g, ""); 
-    return /^(\d{10}|\d{11})$/.test(cleaned); 
-  }, {
-    message: 'Telefone inválido. Informe DDD + número (10 ou 11 dígitos).',
-  }),
-});
-
-export const deleteSupplierParams = z.object({
-  id: z
-    .string()
-    .refine((val) => !isNaN(Number(val)), {
-      message: "ID inválido",
-    }),
-});
 export const updateSupplierValidation = z.object({
-  email: z.string().email({ message: "E-mail inválido." }).optional(),
-  phone: z
-    .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      const cleaned = val.replace(/\D/g, "");
-      return /^(\d{10}|\d{11})$/.test(cleaned);
-    }, { message: "Telefone inválido. Informe DDD + número (10 ou 11 dígitos)." }),
-});
+  email: email.optional(),
+  phone: optionalPhone.optional(),
+}).strict().refine((data) => Object.keys(data).length > 0, "Informe ao menos um campo para atualizar.");
+
+export const deleteSupplierParams = idParams;
+export const listSupplierQueryValidation = listQueryValidation;

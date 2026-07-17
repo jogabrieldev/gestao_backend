@@ -1,73 +1,43 @@
-import { Request, Response } from "express";
-import { createClient , getAllClient , deleteClientById , updateClient } from "../services/clientService";
+import type { NextFunction, Request, Response } from "express";
+import type { ListOptions } from "../types/clientTypes";
+import { createClient, deleteClientById, getAllClient, updateClient } from "../services/clientService";
 
-export const registerClient = async (req: Request, res: Response) => {
+export const registerClient = async (req: Request, res: Response, next: NextFunction) => {
   try {
-       
-    const userId = Number(res.locals.userId); 
-     
-    if (!userId) {
-      return res.status(401).json({ error: "Usuário não autenticado" });
-    }
-
-    const client = await createClient(req.body , userId);
+    const client = await createClient(req.body, res.locals.userId as number);
     return res.status(201).json(client);
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message });
+  } catch (error) {
+    next(error);
   }
 };
 
-export const getAllClientsController = async (_req: Request, res: Response) => {
-  const userId = res.locals.userId
-
-    if (!userId) {
-      return res.status(401).json({ error: "Usuário não autenticado" });
-    }
-
+export const getAllClientsController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const clients = await getAllClient(userId);
-    if(!clients) return res.status(400).json({message:"ERRO em buscar os clientes"})
-    return res.status(200).json(clients);
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message });
+    const { items, total } = await getAllClient(
+      res.locals.userId as number,
+      res.locals.validatedQuery as ListOptions,
+    );
+    res.setHeader("X-Total-Count", total);
+    return res.status(200).json(items);
+  } catch (error) {
+    next(error);
   }
 };
 
-
-
-export const deleteClient = async (req: Request, res: Response) => {
-
- const id = Number(req.params.id)
-  const userId = res.locals.userId
-  if(!userId){
-     return res.status(401).json({error:"Usuario não autorizado"})
-  }
+export const deleteClient = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const deletedClient = await deleteClientById(id , userId);
-    return res.status(200).json({
-      message: "Cliente deletado com sucesso",
-      client: deletedClient,
-    });
-  } catch (error: any) {
-    return res.status(400).json({ message: error.message });
+    await deleteClientById(Number(req.params.id), res.locals.userId as number);
+    return res.status(204).send();
+  } catch (error) {
+    next(error);
   }
 };
 
-export const updateClientController = async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  const userId = Number(res.locals.userId);
-  
-  if (!userId) {
-    return res.status(401).json({ error: "Usuário não autenticado." });
-  }
-
+export const updateClientController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const updatedClient = await updateClient(id, req.body, userId);
-    return res.status(200).json({
-      message: "Cliente atualizado com sucesso!",
-      client: updatedClient,
-    });
-  } catch (error: any) {
-    return res.status(400).json({ message: error.message });
+    const client = await updateClient(Number(req.params.id), req.body, res.locals.userId as number);
+    return res.status(200).json({ message: "Cliente atualizado com sucesso.", client });
+  } catch (error) {
+    next(error);
   }
 };

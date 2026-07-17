@@ -9,8 +9,11 @@ pnpm-debug.log*
 # Build
 dist/
 build/
-# Prisma
-prisma/migrations/
+# Arquivos temporários do Prisma
+prisma/*.db-journal
+
+# Documentação local e collections de API
+docs/
 
 # Logs
 logs/
